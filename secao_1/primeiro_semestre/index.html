@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cliente do Jardim</title>
+    <!-- Carregando Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Carregando a fonte Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Reutilizando nosso tema de jardim */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F5F5DC; /* Bege (Terra) */
+        }
+        .text-dark-green { color: #556B2F; }
+        .text-brown { color: #8B4513; }
+        .bg-green-button { background-color: #556B2F; }
+        .bg-green-button:hover { background-color: #6B8E23; }
+        .border-green { border-color: #556B2F; }
+        .response-box {
+            background-color: #F0EAD6; /* Papel envelhecido */
+            border-left: 5px solid #556B2F;
+            color: #3D2B1F;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+    <div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-lg border-t-8 border-green">
+
+        <header class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-dark-green">O Visitante do Jardim</h1>
+            <p class="text-lg text-brown">Apertando a campainha (API) do Python</p>
+        </header>
+
+        <!-- O Botão (A Campainha) -->
+        <div class="text-center mb-6">
+            <button id="botao-verificar" class="bg-green-button text-white font-bold py-3 px-6 rounded-lg shadow-md transition-all duration-200 transform hover:scale-105">
+                Apertar a Campainha (Chamar API)
+            </button>
+        </div>
+
+        <!-- A Resposta do Servidor -->
+        <div class="response-box p-4 rounded-lg">
+            <p class="text-lg text-brown font-semibold mb-2">Resposta do Jardineiro (Servidor):</p>
+            <p id="status-planta" class="font-mono text-gray-600">Aguardando...</p>
+        </div>
+
+    </div>
+
+    <!-- O "Dedo" (JavaScript) -->
+    <script>
+        // 1. Encontrar o botão e a caixa de status
+        const botao = document.getElementById('botao-verificar');
+        const statusEl = document.getElementById('status-planta');
+
+        // 2. Adicionar um "ouvinte" de clique no botão
+        botao.addEventListener('click', function() {
+            statusEl.innerText = "Ligando para o servidor... (aguarde)";
+
+            // 3. FAZER A LIGAÇÃO (Fetch) para o nosso servidor Python
+            // Usamos o endereço completo que o servidor mostrou no terminal
+            fetch('http://127.0.0.1:5000/')
+                .then(response => {
+                    // Pega a resposta. Como o servidor só manda texto, usamos .text()
+                    if (!response.ok) {
+                        throw new Error('Servidor não respondeu bem: ' + response.statusText);
+                    }
+                    return response.text();
+                })
+                .then(textoDaResposta => {
+                    // 4. SUCESSO: Colocar a resposta do Python na tela
+                    statusEl.innerText = textoDaResposta;
+                })
+                .catch(error => {
+                    // 5. ERRO: Avisar se algo deu errado (Ex: o servidor está desligado)
+                    console.error('Erro ao chamar a API:', error);
+                    statusEl.innerText = "ERRO! Não consegui falar com o Jardineiro. O servidor Python está rodando?";
+                    statusEl.style.color = 'red';
+                });
+        });
+    </script>
+</body>
+</html>
